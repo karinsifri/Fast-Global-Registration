@@ -1,7 +1,9 @@
 import numpy as np
-from open3d.cpu.pybind.geometry import PointCloud, KDTreeSearchParamHybrid
-from open3d.cpu.pybind.pipelines.registration import compute_fpfh_feature
 from sklearn.neighbors import KDTree
+from open3d.cpu.pybind.pipelines.registration import compute_fpfh_feature
+from open3d.cpu.pybind.geometry import PointCloud, KDTreeSearchParamHybrid
+
+from src.consts import KDTREE_RADIUS, KDTREE_MAX_NN, TUPLE_TEST_TRIALS_SCALE, TUPLE_TEST_MAX_CORRESPONDENCES, TAU
 
 
 def find_point_correspondence(pcd_p: PointCloud, pcd_q: PointCloud) -> tuple[np.ndarray, np.ndarray]:
@@ -38,9 +40,8 @@ def collect_all_correspondences(pcd_p: PointCloud, pcd_q: PointCloud) -> np.ndar
     Returns:
         kappa1 (np.ndarray): a list of point indices describing all the correspondences
     """
-    # TODO: move all magic numbers to consts
-    fpfh_p = compute_fpfh_feature(pcd_p, KDTreeSearchParamHybrid(radius=0.05, max_nn=100))
-    fpfh_q = compute_fpfh_feature(pcd_q, KDTreeSearchParamHybrid(radius=0.05, max_nn=100))
+    fpfh_p = compute_fpfh_feature(pcd_p, KDTreeSearchParamHybrid(radius=KDTREE_RADIUS, max_nn=KDTREE_MAX_NN))
+    fpfh_q = compute_fpfh_feature(pcd_q, KDTreeSearchParamHybrid(radius=KDTREE_RADIUS, max_nn=KDTREE_MAX_NN))
 
     f_p = np.asarray(fpfh_p.date, dtype=np.float32).T
     f_q = np.asarray(fpfh_q.date, dtype=np.float32).T
@@ -90,7 +91,7 @@ def tuple_test(kappa_2: np.ndarray, pcd_p: PointCloud, pcd_q: PointCloud) -> np.
         kappa_3 (np.ndarray): indices of matches that pass the tuple test
     """
     # get random tuples
-    tuples = np.random.randint(len(kappa_2), size=(len(kappa_2) * 100, 3))
+    tuples = np.random.randint(len(kappa_2), size=(len(kappa_2) * TUPLE_TEST_TRIALS_SCALE, 3))
 
     # make sure that there are no matches that appear more than once in the tuple
     all_different = np.logical_and(tuples[:, 0] != tuples[:, 1],
@@ -113,18 +114,16 @@ def tuple_test(kappa_2: np.ndarray, pcd_p: PointCloud, pcd_q: PointCloud) -> np.
     second = np.linalg.norm(p_i - p_k, axis=1) / np.linalg.norm(q_i - q_k, axis=1)
     third = np.linalg.norm(p_j - p_k, axis=1) / np.linalg.norm(q_j - q_k, axis=1)
 
-    tau = 0.9
-
     passed_tuple_test = np.logical_and(
         np.logical_and(
-            np.logical_and(first > tau, first < 1 / tau),
-            np.logical_and(second > tau, second < 1 / tau)
+            np.logical_and(first > TAU, first < 1 / TAU),
+            np.logical_and(second > TAU, second < 1 / TAU)
         ),
-        np.logical_and(third > tau, third < 1 / tau)
+        np.logical_and(third > TAU, third < 1 / TAU)
     )
 
     # get the first (unique) matches that pass the tuple test
-    kappa_3 = kappa_2[np.unique(tuples[np.flatnonzero(passed_tuple_test)[:1000]].flatten())]
+    kappa_3 = kappa_2[np.unique(tuples[np.flatnonzero(passed_tuple_test)[:TUPLE_TEST_MAX_CORRESPONDENCES]].flatten())]
 
     return kappa_3
 
