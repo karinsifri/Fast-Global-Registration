@@ -43,8 +43,8 @@ def collect_all_correspondences(pcd_p: PointCloud, pcd_q: PointCloud) -> np.ndar
     fpfh_p = compute_fpfh_feature(pcd_p, KDTreeSearchParamHybrid(radius=KDTREE_RADIUS, max_nn=KDTREE_MAX_NN))
     fpfh_q = compute_fpfh_feature(pcd_q, KDTreeSearchParamHybrid(radius=KDTREE_RADIUS, max_nn=KDTREE_MAX_NN))
 
-    f_p = np.asarray(fpfh_p.date, dtype=np.float32).T
-    f_q = np.asarray(fpfh_q.date, dtype=np.float32).T
+    f_p = np.asarray(fpfh_p.data, dtype=np.float32).T
+    f_q = np.asarray(fpfh_q.data, dtype=np.float32).T
 
     kdtree_p = KDTree(f_p)
     kdtree_q = KDTree(f_q)
