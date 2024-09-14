@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import least_squares
 
 from src.logic.objective import pairwise_objective
-from src.utils.linearization import xi_to_mat
+from src.utils.linearization import reconstruct_transformation
 from src.utils.transforms import apply_homogenous_transformation, project_to_rigid
 
 
@@ -25,6 +25,6 @@ def optimization_step(p: np.ndarray, q: np.ndarray, t: np.ndarray, mu: float) ->
     xi_0 = 0, 0, 0, 0, 0, 0
     result = least_squares(pairwise_objective, xi_0, args=(p, q, t, l_weights), method='lm')
 
-    t_new: np.ndarray = xi_to_mat(*result.x) @ t
+    t_new: np.ndarray = reconstruct_transformation(t, result.x)
 
     return project_to_rigid(t_new)

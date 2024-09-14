@@ -1,6 +1,20 @@
 import numpy as np
 
 
+def reconstruct_transformation(t: np.ndarray, xi: tuple[float, float, float, float, float, float]) -> np.ndarray:
+    """
+    TODO: write docstring
+
+    Args:
+        t:
+        xi:
+
+    Returns:
+
+    """
+    return xi_to_mat(*xi) @ t
+
+
 def xi_to_mat(alpha: float, beta: float, gamma: float, a: float, b: float, c: float) -> np.ndarray:
     """
     TODO: write docstring

@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.utils.linearization import xi_to_mat
+from src.utils.linearization import reconstruct_transformation
 from src.utils.transforms import apply_homogenous_transformation
 
 
@@ -19,7 +19,7 @@ def pairwise_objective(xi: tuple[float, float, float, float, float, float],
     Returns:
 
     """
-    dists: np.ndarray = np.linalg.norm(p - apply_homogenous_transformation(points=q,
-                                                                           transformation_matrix=xi_to_mat(*xi) @ t),
+    trans = reconstruct_transformation(t, xi)
+    dists: np.ndarray = np.linalg.norm(p - apply_homogenous_transformation(points=q, transformation_matrix=trans),
                                        axis=1)
     return l_weights * (dists ** 2)
