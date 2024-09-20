@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import polar
 
 
 def apply_homogenous_transformation(points: np.ndarray, transformation_matrix: np.ndarray) -> np.ndarray:
@@ -25,3 +26,33 @@ def apply_homogenous_transformation(points: np.ndarray, transformation_matrix: n
     points = transformation_matrix @ points.T
     points = points[:-1] / points[-1]
     return points.T
+
+
+def project_to_rigid(t: np.ndarray) -> np.ndarray:
+    """
+    Projects a transformation matrix d_new to SE(n), ensuring it's a valid rigid body transformation.
+
+    Args:
+        t (ndarray): The transformation matrix of shape (n+1, n+1).
+
+    Returns:
+        t_rigid (ndarray): The projected SE(n) matrix.
+    """
+    if t.shape[0] != t.shape[1]:
+        raise ValueError("Input matrix must be square.")
+    n = t.shape[0] - 1
+    if n < 1:
+        raise ValueError("Invalid transformation matrix dimension.")
+
+    # Project the rotational part to SO(n) using polar decomposition
+    rot, _ = polar(t[:n, :n])
+
+    # Ensure det(R_orthogonal) = 1 for proper rotation
+    rot[:, -1] *= np.sign(np.linalg.det(rot))
+
+    # Construct the SE(n) matrix by copying over translation and corrected rotation
+    t_rigid = np.eye(n + 1)
+    t_rigid[:n, :n] = rot
+    t_rigid[:n, n] = t[:n, n]
+
+    return t_rigid
