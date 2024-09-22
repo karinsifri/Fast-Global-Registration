@@ -1,3 +1,4 @@
 numpy>=2.0.1
 open3d>=0.18.0
 scikit-learn>=1.5.1
+scipy>=1.14.1
