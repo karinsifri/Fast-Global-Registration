@@ -8,7 +8,7 @@ from src.utils.transforms import apply_homogenous_transformation, project_to_rig
 
 def optimization_step(p: np.ndarray, q: np.ndarray, t: np.ndarray, mu: float) -> np.ndarray:
     """
-    Updates the transformation matrix according to the optimization step
+    Updates the transformation matrix according to the optimization step described in the paper
 
     Args:
         p (np.ndarray): the matching points from the first point cloud
