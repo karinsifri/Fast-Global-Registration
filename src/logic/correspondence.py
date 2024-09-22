@@ -52,10 +52,10 @@ def collect_all_correspondences(pcd_p: PointCloud, pcd_q: PointCloud) -> np.ndar
     _, indices_q = kdtree_q.query(f_p, k=1)
     _, indices_p = kdtree_p.query(f_q, k=1)
 
-    matches1 = np.hstack([np.expand_dims(np.arange(len(f_p)), axis=1), indices_q])
-    matches2 = np.hstack([indices_p, np.expand_dims(np.arange(len(f_q)), axis=1)])
+    matches1 = np.column_stack([np.expand_dims(np.arange(len(f_p)), axis=1), indices_q])
+    matches2 = np.column_stack([indices_p, np.expand_dims(np.arange(len(f_q)), axis=1)])
 
-    kappa1 = np.vstack([matches1, matches2])
+    kappa1 = np.row_stack([matches1, matches2])
     return kappa1
 
 
