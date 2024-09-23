@@ -3,7 +3,19 @@ from matplotlib import pyplot as plt
 import matplotlib.colors as mcolors
 
 
-def visualize_step_2d(spline1: np.ndarray, spline2: np.ndarray, points1: np.ndarray, points2: np.ndarray, l_weights: np.ndarray, step: int) -> None:
+def visualize_step_2d(spline1: np.ndarray, spline2: np.ndarray, points1: np.ndarray, points2: np.ndarray,
+                      l_weights: np.ndarray, step: int) -> None:
+    """
+    Visualize a 2d optimization step
+
+    Args:
+        spline1: an array containing the linestring points1 were sampled from
+        spline2: an array containing the linestring points2 were sampled from
+        points1: the matching points sampled from spline1
+        points2: the matching points sampled from spline2
+        l_weights: the weights of the point matches
+        step: the step number
+    """
     # Create a figure and axis
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -19,7 +31,7 @@ def visualize_step_2d(spline1: np.ndarray, spline2: np.ndarray, points1: np.ndar
     norm = mcolors.Normalize(vmin=np.min(l_weights), vmax=np.max(l_weights))
 
     # Create a colormap (using RdYlGn to represent good/bad scale)
-    cmap = plt.cm.Greens
+    cmap = plt.cm.coolwarm_r
 
     # Plot the connections with colors representing the l values
     for i in range(len(points1)):
