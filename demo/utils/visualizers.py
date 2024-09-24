@@ -1,6 +1,10 @@
 import numpy as np
-from matplotlib import pyplot as plt
+import open3d as o3d
 import matplotlib.colors as mcolors
+from matplotlib import pyplot as plt
+from open3d.cpu.pybind.geometry import PointCloud
+
+from src.logic.correspondence import get_matches_to_points
 
 
 def visualize_step_2d(spline1: np.ndarray, spline2: np.ndarray, points1: np.ndarray, points2: np.ndarray,
@@ -57,3 +61,37 @@ def visualize_step_2d(spline1: np.ndarray, spline2: np.ndarray, points1: np.ndar
 
     # Show the plot
     plt.show()
+
+
+def visualize_correspondences(pcd_p: PointCloud, pcd_q: PointCloud, matches: np.ndarray, title: str) -> None:
+    """
+    Visualizes the point correspondences using lines between matched points.
+
+    Args:
+        pcd_p: the point cloud of the first object {P}
+        pcd_q: the point cloud of the second object {Q}
+        matches: indices of matching point between pcd_p and pcd_q
+        title: a name for the visualisation window
+    """
+    if len(matches) == 0:
+        print(f"No matches to visualize in {title}")
+        return
+
+    lines = [[i, i + len(matches)] for i in range(len(matches))]  # Create line pairs
+
+    matched_points_p, matched_points_q = get_matches_to_points(matches=matches, pcd_p=pcd_p, pcd_q=pcd_q)
+
+    combined_points = np.vstack((matched_points_p, matched_points_q))
+
+    # Create lineset to draw correspondences
+    line_set = o3d.geometry.LineSet(
+        points=o3d.utility.Vector3dVector(combined_points),
+        lines=o3d.utility.Vector2iVector(lines),
+    )
+    line_set.paint_uniform_color([0, 1, 0])
+
+    # Visualize point clouds and correspondences
+    pcd_p.paint_uniform_color([1, 0, 0])  # Red for P
+    pcd_q.paint_uniform_color([0, 0, 1])  # Blue for Q
+
+    o3d.visualization.draw_geometries([pcd_p, pcd_q, line_set], window_name=title)
