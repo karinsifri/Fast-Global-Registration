@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 import open3d as o3d
 import matplotlib.colors as mcolors
@@ -95,3 +97,71 @@ def visualize_correspondences(pcd_p: PointCloud, pcd_q: PointCloud, matches: np.
     pcd_q.paint_uniform_color([0, 0, 1])  # Blue for Q
 
     o3d.visualization.draw_geometries([pcd_p, pcd_q, line_set], window_name=title)
+
+
+def draw_registration_result(source: PointCloud, target: PointCloud, transformation: np.ndarray) -> None:
+    """
+    Visualizes the registration result with the object centered in the view and a white background.
+
+    Args:
+        source: the point cloud of the source object
+        target: the point cloud of the target object
+        transformation: The 4x4 transformation matrix to align source to target
+
+    Returns:
+
+    """
+    """
+    Visualizes the registration result with the object centered in the view and a white background.
+
+    Parameters:
+    - pcd1 (o3d.geometry.PointCloud): The pcd1 point cloud.
+    - pcd2(o3d.geometry.PointCloud): The pcd2 point cloud.
+    - transformation (numpy.ndarray): The 4x4 transformation matrix to align source to target.
+    """
+    # Deep copy to avoid modifying the original point clouds
+    source_temp = deepcopy(source)
+    target_temp = deepcopy(target)
+
+    # Apply colors for differentiation
+    source_temp.paint_uniform_color([1, 0.706, 0])  # Orange for pcd1
+    target_temp.paint_uniform_color([0, 0.651, 0.929])  # Blue for pcd2
+
+    # Apply the transformation to the source
+    source_temp.transform(transformation)
+
+    # Combine both point clouds for computing the center
+    combined = source_temp + target_temp
+
+    # Compute the axis-aligned bounding box of the combined point clouds
+    bbox = combined.get_axis_aligned_bounding_box()
+
+    # Calculate the center of the bounding box
+    center = bbox.get_center()
+
+    # Initialize the Visualizer
+    vis = o3d.visualization.Visualizer()
+    vis.create_window(width=800, height=600)
+
+    # Add the transformed source and target point clouds
+    vis.add_geometry(source_temp)
+    vis.add_geometry(target_temp)
+
+    # Set the background color to white
+    opt = vis.get_render_option()
+    opt.background_color = np.array([1, 1, 1])  # White background
+    opt.point_size = 2.0
+
+    # Get the view control and set camera parameters to center the object
+    ctr = vis.get_view_control()
+    ctr.set_lookat(center)
+    ctr.set_front([0, 0, -1])
+    ctr.set_up([0, -1, 0])
+    ctr.set_zoom(0.8)
+
+    # Update renderer to apply the background change
+    vis.update_renderer()
+
+    # Run the visualizer
+    vis.run()
+    vis.destroy_window()
