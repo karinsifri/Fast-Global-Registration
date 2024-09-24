@@ -6,6 +6,17 @@ Fast-Global Registration (FGR) is an advanced method used in computer vision and
 
 The implementation here is based on the original paper: [Fast Global Registration](https://vladlen.info/publications/fast-global-registration/) by Zhou et al., 2016.
 
+## Results
+Here provided some results of the full registration pipeline.
+<p float="left">
+  <img src="images/doll_before.png" alt="Image 1" width="45%" />
+  <img src="images/doll_after.png" alt="Image 2" width="45%" />
+</p>
+<p float="left">
+  <img src="images/lion_before.png" alt="Image 1" width="45%" />
+  <img src="images/lion_after.png" alt="Image 2" width="45%" />
+</p>
+
 ## Available Demo Notebooks
 The repository includes demo notebooks that allow you to visualize the FGR algorithm:
 * `optimization.ipynb`: provides a visualization of the optimization loop on a simple 2-dimensional spline.
